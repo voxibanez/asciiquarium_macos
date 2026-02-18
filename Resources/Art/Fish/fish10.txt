@@ -1,0 +1,21 @@
+# Curly fish
+@width 10
+@height 7
+
+@section right
+     ,  
+     \}\
+\  .'  `\
+}}<   ( 6>
+/  `,  .'
+     \}/
+     '  
+
+@section left
+    ,   
+   /{\  
+ /'  `. /
+<6 )   >/{'
+ `.  ,'  \
+   \{/   
+    `    

@@ -1,0 +1,13 @@
+# Treasure chest - closed and open states
+@width 7
+@height 3
+
+@section closed
+ _____ 
+|  _  |
+|_|_|_|
+
+@section open
+ _---_ 
+/ ___ \
+|[___]|

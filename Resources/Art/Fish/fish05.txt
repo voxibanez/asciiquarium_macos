@@ -1,0 +1,17 @@
+# Finned fish
+@width 6
+@height 5
+
+@section right
+   \  
+  / \ 
+>=_('>
+  \_/ 
+   /  
+
+@section left
+  /   
+ / \  
+<')_=<
+ \_/  
+  \   

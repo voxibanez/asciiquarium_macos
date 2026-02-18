@@ -1,0 +1,53 @@
+# Static decorations: castle, rocks, shells
+
+@section castle
+               T~~
+               |  
+              /^\ 
+             /   \
+ _   _   _  /     \  _   _   _
+[ ]_[ ]_[ ]/ _   _ \[ ]_[ ]_[ ]
+|_=__-_ =_|_[ ]_[ ]_|_=-___-__|
+ | _- =  | =_ = _    |= _=   |
+ |= -[]  |- = _ =    |_-=_[] |
+ | =_    |= - ___    | =_ =  |
+ |=  []- |-  /| |\   |=_ =[] |
+ |- =_   | =| | | |  |- = -  |
+ |_______|__|_|_|_|__|_______|
+
+@section rock.0
+  /\  
+ /  \ 
+
+@section rock.1
+(@@)
+
+@section rock.2
+ _/\_ 
+/    \
+
+@section rock.3
+(@)
+
+@section rock.4
+  __  
+ /  \ 
+/    \
+
+@section shell.0
+@>
+
+@section shell.1
+<@
+
+@section shell.2
+()
+
+@section shell.3
+-*-
+
+@section shell.4
+*
+
+@section shell.5
+o

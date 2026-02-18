@@ -1,0 +1,17 @@
+# Spiny fish
+@width 7
+@height 5
+
+@section right
+    \  
+\ /--\ 
+>=  (o>
+/ \__/ 
+    /  
+
+@section left
+  /    
+ /--\ /
+<o)  =<
+ \__/ \
+  \    

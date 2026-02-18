@@ -1,0 +1,13 @@
+# Simple fish with tail
+@width 5
+@height 3
+
+@section right
+  ,\
+>=('>
+  '/
+
+@section left
+ /,  
+<')=<
+ \'  

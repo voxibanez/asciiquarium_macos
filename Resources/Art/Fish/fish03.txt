@@ -1,0 +1,13 @@
+# Round fish
+@width 5
+@height 3
+
+@section right
+  __
+\/ o\
+/\__/
+
+@section left
+__   
+/o \/
+\__/\

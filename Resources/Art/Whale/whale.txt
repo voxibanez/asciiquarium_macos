@@ -1,0 +1,43 @@
+# Humpback whale with water spout animation
+@width 20
+@height 4
+
+@section body.right
+        .-----:   
+      .'       `. 
+,    /       (o) \
+\`._/          ,__)
+
+@section body.left
+   :-----.        
+ .'       `.      
+/ (o)       \    ,
+(__,          \_.'/ 
+
+# spout.0 is intentionally empty (no spout state)
+@section spout.0
+
+@section spout.1
+   :
+
+@section spout.2
+  . .
+  -:-
+   :
+
+@section spout.3
+  . .
+ .-:-.
+   :
+
+@section spout.4
+  . .
+ '.-:-.`
+ '  :  '
+
+@section spout.5
+  .- -.
+ ;  :  ;
+
+@section spout.6
+ ;     ;

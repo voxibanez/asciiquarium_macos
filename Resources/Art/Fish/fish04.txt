@@ -1,0 +1,13 @@
+# Dotted tail fish
+@width 9
+@height 3
+
+@section right
+   ..\ 
+>='   ('>
+  '''/'' 
+
+@section left
+  ,/..   
+<')   `=<
+ ``\```  

@@ -1,0 +1,19 @@
+# Fancy tail fish
+@width 15
+@height 6
+
+@section right
+       \    
+     ...\...
+\  /'       \
+ >=     (  ' >
+/  \      / / 
+    `"'"'/''  
+
+@section left
+      /       
+  ,../...     
+ /       '\  /
+< '  )     =< 
+ \ \      /  \
+  `'\'"'`'     

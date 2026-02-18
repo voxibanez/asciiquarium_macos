@@ -1,0 +1,17 @@
+# Jellyfish - two animation frames
+@width 6
+@height 5
+
+@section expanded
+ _.._ 
+'    '
+ \||/ 
+  ||  
+  ||  
+
+@section contracted
+ .__. 
+(    )
+ /||\ 
+  ||  
+  /\  

@@ -1,0 +1,23 @@
+# Crab - two walk animation frames per direction
+@width 7
+@height 3
+
+@section right.0
+ ,v  /)
+(o  o) 
+ /| |\ 
+
+@section right.1
+ ,v  /)
+(o  o) 
+/ | | \
+
+@section left.0
+(\  v, 
+ (o  o)
+ /| |\ 
+
+@section left.1
+(\  v, 
+ (o  o)
+/ | | \

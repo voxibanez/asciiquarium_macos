@@ -1,0 +1,24 @@
+# Fish death splat - 4 animation frames (variable height)
+
+@section frame.0
+  .  
+ *** 
+  '  
+
+@section frame.1
+ ",*;`
+ "*,**
+ *"'~'
+
+@section frame.2
+  , , 
+ " ","'
+ *" *'"
+  " ; .
+
+@section frame.3
+* ' , ' `
+' ` * . '
+ ' `' ",'`
+* ' " * .
+" * ', ' 

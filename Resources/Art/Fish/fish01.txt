@@ -1,0 +1,13 @@
+# Classic small fish
+@width 5
+@height 3
+
+@section right
+  __
+><_'>
+  ' 
+
+@section left
+ __  
+<'_><
+  `  
