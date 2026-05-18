@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-# ASCII art adapted from Asciiquarium v1.1 by Kirk Baucom.
-# Original Asciiquarium credits Joan Stark for most ASCII art.
-# Modified for AsciiFishtank in 2026; see NOTICE.
+# Original AsciiFishtank ASCII art, copyright (C) 2026 AsciiFishtank contributors.
+# Not copied from the upstream Asciiquarium art set; see NOTICE.
 
 # Nessie sea monster - two animation frames per direction
 @width 50

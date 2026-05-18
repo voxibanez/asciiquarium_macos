@@ -16,6 +16,33 @@ ASCII art attribution from the original README:
   Pretty much all of the ASCII art was done by Joan Stark.
   http://www.geocities.com/SoHo/7373/
 
+Art provenance in this repository:
+  Adapted from Asciiquarium v1.1:
+    Sources/AsciiFishtank/Resources/Art/Decorations/decorations.txt
+      - castle section only
+    Sources/AsciiFishtank/Resources/Art/Fish/fish01.txt
+    Sources/AsciiFishtank/Resources/Art/Fish/fish02.txt
+    Sources/AsciiFishtank/Resources/Art/Fish/fish03.txt
+    Sources/AsciiFishtank/Resources/Art/Fish/fish04.txt
+    Sources/AsciiFishtank/Resources/Art/Fish/fish05.txt
+    Sources/AsciiFishtank/Resources/Art/Fish/fish06.txt
+    Sources/AsciiFishtank/Resources/Art/Fish/fish07.txt
+    Sources/AsciiFishtank/Resources/Art/Fish/fish09.txt
+    Sources/AsciiFishtank/Resources/Art/Shark/shark.txt
+    Sources/AsciiFishtank/Resources/Art/Ship/ship.txt
+    Sources/AsciiFishtank/Resources/Art/Splat/splat.txt
+    Sources/AsciiFishtank/Resources/Art/Whale/whale.txt
+
+  Original AsciiFishtank art:
+    Sources/AsciiFishtank/Resources/Art/Crab/crab.txt
+    Sources/AsciiFishtank/Resources/Art/Decorations/decorations.txt
+      - rock and shell sections
+    Sources/AsciiFishtank/Resources/Art/Fish/fish08.txt
+    Sources/AsciiFishtank/Resources/Art/Fish/fish10.txt
+    Sources/AsciiFishtank/Resources/Art/Jellyfish/jellyfish.txt
+    Sources/AsciiFishtank/Resources/Art/Monster/monster.txt
+    Sources/AsciiFishtank/Resources/Art/TreasureChest/chest.txt
+
 This repository is distributed under GPL-2.0-or-later. See LICENSE for the
 full license text.
 
