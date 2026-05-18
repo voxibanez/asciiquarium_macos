@@ -6,6 +6,7 @@ BINARY = $(SAVER)/Contents/MacOS/$(BUNDLE_NAME)
 SDK = $(shell xcrun --sdk macosx --show-sdk-path)
 ARCH = $(shell uname -m)
 MIN_VERSION = 14.0
+PREFIX ?= /usr/local
 
 all: $(SAVER)
 
@@ -33,10 +34,15 @@ install: $(SAVER)
 	rm -rf ~/Library/Screen\ Savers/$(SAVER)
 	cp -R $(SAVER) ~/Library/Screen\ Savers/
 
+install-prefix: $(SAVER)
+	rm -rf $(PREFIX)/$(SAVER)
+	mkdir -p $(PREFIX)
+	cp -R $(SAVER) $(PREFIX)/
+
 uninstall:
 	rm -rf ~/Library/Screen\ Savers/$(SAVER)
 
 clean:
 	rm -rf $(SAVER)
 
-.PHONY: all install uninstall clean
+.PHONY: all install install-prefix uninstall clean
