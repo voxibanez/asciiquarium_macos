@@ -3,6 +3,7 @@ class AsciiFishtank < Formula
   homepage "https://github.com/voxibanez/asciiquarium_macos"
   url "https://github.com/voxibanez/asciiquarium_macos.git", branch: "main"
   version "1.0"
+  license "GPL-2.0-or-later"
 
   depends_on macos: :sonoma
 
@@ -10,6 +11,7 @@ class AsciiFishtank < Formula
     system "make", "clean"
     system "make"
     prefix.install "AsciiFishtank.saver"
+    prefix.install "LICENSE", "NOTICE"
   end
 
   def caveats

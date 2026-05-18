@@ -1,0 +1,24 @@
+AsciiFishtank licensing and attribution notice
+
+AsciiFishtank is a Swift/macOS screen saver port inspired by and derived
+from Asciiquarium v1.1.
+
+Original project:
+  Asciiquarium v1.1
+  Copyright (C) 2013 Kirk Baucom
+  https://robobunny.com/projects/asciiquarium/
+
+Original Asciiquarium is licensed under the GNU General Public License as
+published by the Free Software Foundation, either version 2 of the License,
+or (at your option) any later version.
+
+ASCII art attribution from the original README:
+  Pretty much all of the ASCII art was done by Joan Stark.
+  http://www.geocities.com/SoHo/7373/
+
+This repository is distributed under GPL-2.0-or-later. See LICENSE for the
+full license text.
+
+This Swift/macOS port reorganizes and modifies the original Perl terminal
+animation into a macOS ScreenSaver.framework bundle, including changes made
+in 2026 by the AsciiFishtank contributors.

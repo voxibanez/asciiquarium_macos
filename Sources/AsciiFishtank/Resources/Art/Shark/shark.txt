@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# ASCII art adapted from Asciiquarium v1.1 by Kirk Baucom.
+# Original Asciiquarium credits Joan Stark for most ASCII art.
+# Modified for AsciiFishtank in 2026; see NOTICE.
+
 # Great white shark
 @width 56
 @height 10

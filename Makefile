@@ -10,7 +10,7 @@ PREFIX ?= /usr/local
 
 all: $(SAVER)
 
-$(SAVER): $(SOURCES) Sources/AsciiFishtank/Resources/Info.plist $(ART_FILES)
+$(SAVER): $(SOURCES) Sources/AsciiFishtank/Resources/Info.plist $(ART_FILES) LICENSE NOTICE
 	mkdir -p $(SAVER)/Contents/MacOS
 	mkdir -p $(SAVER)/Contents/Resources
 	swiftc $(SOURCES) \
@@ -27,6 +27,7 @@ $(SAVER): $(SOURCES) Sources/AsciiFishtank/Resources/Info.plist $(ART_FILES)
 		-whole-module-optimization
 	cp Sources/AsciiFishtank/Resources/Info.plist $(SAVER)/Contents/Info.plist
 	cp -R Sources/AsciiFishtank/Resources/Art $(SAVER)/Contents/Resources/
+	cp LICENSE NOTICE $(SAVER)/Contents/Resources/
 	codesign -s - -f $(SAVER)
 
 install: $(SAVER)

@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// Copyright (C) 2026 AsciiFishtank contributors
+// Swift/macOS port derived from Asciiquarium v1.1 by Kirk Baucom.
+// See NOTICE for original attribution and modification details.
+
 import Foundation
 import ScreenSaver
 
