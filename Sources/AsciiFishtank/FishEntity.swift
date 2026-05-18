@@ -9,8 +9,26 @@ enum Direction {
 struct FishDesign {
     let rightArt: [String]
     let leftArt: [String]
+    let rightMask: [String]?
+    let leftMask: [String]?
     let width: Int
     let height: Int
+
+    init(
+        rightArt: [String],
+        leftArt: [String],
+        rightMask: [String]? = nil,
+        leftMask: [String]? = nil,
+        width: Int,
+        height: Int
+    ) {
+        self.rightArt = rightArt
+        self.leftArt = leftArt
+        self.rightMask = rightMask
+        self.leftMask = leftMask
+        self.width = width
+        self.height = height
+    }
 
     /// Designs loaded from Art/Fish/ TXT files at runtime (populated by ArtRepository).
     static var allDesigns: [FishDesign] { ArtRepository.shared.fishDesigns }
@@ -197,12 +215,12 @@ struct FishEntity {
     var direction: Direction
     var design: FishDesign
     var color: NSColor
+    var partColors: [Character: NSColor] = [:]
     var frameCounter: Int = 0
     var alive: Bool = true
     var schoolId: Int = -1  // -1 = solo, >= 0 = belongs to a school
-    /// Phase offset for staggered movement mode. When staggeredMovement is enabled,
-    /// this fish only ticks when (globalFrameCount % stepSize) == tickOffset.
-    var tickOffset: Int = 0
+    /// Accumulates movement debt for staggered movement mode.
+    var moveAccumulator: Double = 0
     // Called by AquariumScene with configurable chance
     func wantsBubble(chance: Int) -> Bool {
         return Int.random(in: 0..<chance) == 0
@@ -254,13 +272,24 @@ struct FishEntity {
 
     func render(into grid: GridRenderer) {
         let art = direction == .right ? design.rightArt : design.leftArt
+        let mask = direction == .right ? design.rightMask : design.leftMask
         let (col, offset) = grid.colAndOffset(for: x)
         for (i, line) in art.enumerated() {
-            grid.putString(line, at: col, row: y + i, foreground: color, xOffset: offset)
+            guard let mask, i < mask.count else {
+                grid.putString(line, at: col, row: y + i, foreground: color, xOffset: offset)
+                continue
+            }
+
+            let maskLine = Array(mask[i])
+            for (j, ch) in line.enumerated() where ch != " " {
+                let maskChar = j < maskLine.count ? maskLine[j] : " "
+                let foreground = partColors[maskChar] ?? color
+                grid.putChar(ch, at: col + j, row: y + i, foreground: foreground, xOffset: offset)
+            }
         }
     }
 
-    static func spawnRandom(columns: Int, rows: Int, sandTop: Int, stepSize: Int = 1) -> FishEntity {
+    static func spawnRandom(columns: Int, rows: Int, sandTop: Int) -> FishEntity {
         let design = FishDesign.allDesigns.randomElement()!
         let direction: Direction = Bool.random() ? .left : .right
         let minY = 5
@@ -269,19 +298,21 @@ struct FishEntity {
         let x = Double.random(in: 0.0...Double(columns))
         let speed = Double.random(in: 0.08...0.4)
         let color = ColorPalette.fishColors.randomElement()!
-        let offset = stepSize > 1 ? Int.random(in: 0..<stepSize) : 0
+        let partColors = ColorPalette.randomFishPartColors()
 
         return FishEntity(
             x: x, y: y, speed: speed, direction: direction,
-            design: design, color: color, tickOffset: offset)
+            design: design, color: color, partColors: partColors,
+            moveAccumulator: Double.random(in: 0...1.0))
     }
 
     // Create a school of small fish that swim together
-    static func spawnSchool(columns: Int, rows: Int, sandTop: Int, schoolId: Int, stepSize: Int = 1) -> [FishEntity] {
+    static func spawnSchool(columns: Int, rows: Int, sandTop: Int, schoolId: Int) -> [FishEntity] {
         let smallDesigns = Array(FishDesign.allDesigns.prefix(4))
         let design = smallDesigns.randomElement()!
         let direction: Direction = Bool.random() ? .left : .right
         let color = ColorPalette.fishColors.randomElement()!
+        let partColors = ColorPalette.randomFishPartColors()
         let baseSpeed = Double.random(in: 0.12...0.3)
         let minY = 6
         let maxY = max(minY, sandTop - 10)
@@ -290,15 +321,18 @@ struct FishEntity {
             ? Double(-design.width - Int.random(in: 10...40))
             : Double(columns + Int.random(in: 10...40))
 
-        // All fish in a school share the same tick offset so they move as a unit
-        let sharedOffset = stepSize > 1 ? Int.random(in: 0..<stepSize) : 0
+        // All fish in a school share the same move accumulator so they move as a unit
+        let sharedAccum = Double.random(in: 0...1.0)
 
         let count = Int.random(in: 3...6)
         var school: [FishEntity] = []
 
+        let horizontalSpacing = Double(design.width + Int.random(in: 2...5))
+        let verticalSpacing = design.height + 1
+
         for i in 0..<count {
-            let offsetX = Double(i % 3) * Double.random(in: 4...8) * (direction == .right ? -1 : 1)
-            let offsetY = (i / 3) * Int.random(in: 2...3)
+            let offsetX = Double(i % 3) * horizontalSpacing * (direction == .right ? -1 : 1)
+            let offsetY = (i / 3) * verticalSpacing
             let speedVariation = Double.random(in: -0.02...0.02)
 
             var fish = FishEntity(
@@ -308,8 +342,9 @@ struct FishEntity {
                 direction: direction,
                 design: design,
                 color: color,
+                partColors: partColors,
                 schoolId: schoolId,
-                tickOffset: sharedOffset
+                moveAccumulator: sharedAccum
             )
             fish.alive = true
             school.append(fish)

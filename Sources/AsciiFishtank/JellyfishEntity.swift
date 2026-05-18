@@ -8,6 +8,7 @@ struct JellyfishEntity {
     var phase: Double
     var pulseSpeed: Double
     var verticalSpeed: Double
+    var color: NSColor
     var isDead: Bool = false
     var frameCounter: Int = 0
 
@@ -62,7 +63,6 @@ struct JellyfishEntity {
     func render(into grid: GridRenderer) {
         let pulse = sin(phase)
         let art = pulse > 0 ? JellyfishEntity.contractedArt : JellyfishEntity.expandedArt
-        let color = frameCounter % 60 < 30 ? JellyfishEntity.jellyColor : JellyfishEntity.jellyColor2
 
         let col = x + Int(driftX.rounded())
         let row = Int(y.rounded())
@@ -83,7 +83,8 @@ struct JellyfishEntity {
             driftX: 0,
             phase: Double.random(in: 0...(.pi * 2)),
             pulseSpeed: Double.random(in: 0.06...0.1),
-            verticalSpeed: Double.random(in: 0.02...0.06)
+            verticalSpeed: Double.random(in: 0.02...0.06),
+            color: Bool.random() ? JellyfishEntity.jellyColor : JellyfishEntity.jellyColor2
         )
     }
 }

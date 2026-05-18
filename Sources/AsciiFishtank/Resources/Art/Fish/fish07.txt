@@ -9,9 +9,23 @@
 / \__/ 
     /  
 
+@section right.mask
+    2
+6 1111
+66  745
+6 1111
+    3
+
 @section left
   /    
  /--\ /
 <o)  =<
  \__/ \
   \    
+
+@section left.mask
+  2
+ 1111 6
+547  66
+ 1111 6
+  3

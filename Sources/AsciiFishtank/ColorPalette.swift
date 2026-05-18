@@ -25,6 +25,28 @@ struct ColorPalette {
         NSColor(calibratedRed: 1.0, green: 0.6, blue: 0.0, alpha: 1.0),  // dark orange
     ]
 
+    static let asciiquariumFishColors: [NSColor] = [
+        NSColor(calibratedRed: 0.0, green: 0.55, blue: 0.55, alpha: 1.0),  // c
+        NSColor(calibratedRed: 0.0, green: 1.0, blue: 1.0, alpha: 1.0),    // C
+        NSColor(calibratedRed: 0.65, green: 0.0, blue: 0.0, alpha: 1.0),   // r
+        NSColor(calibratedRed: 1.0, green: 0.2, blue: 0.2, alpha: 1.0),    // R
+        NSColor(calibratedRed: 0.7, green: 0.55, blue: 0.0, alpha: 1.0),   // y
+        NSColor(calibratedRed: 1.0, green: 0.9, blue: 0.0, alpha: 1.0),    // Y
+        NSColor(calibratedRed: 0.0, green: 0.15, blue: 0.75, alpha: 1.0),  // b
+        NSColor(calibratedRed: 0.25, green: 0.45, blue: 1.0, alpha: 1.0),  // B
+        NSColor(calibratedRed: 0.0, green: 0.55, blue: 0.0, alpha: 1.0),   // g
+        NSColor(calibratedRed: 0.2, green: 1.0, blue: 0.2, alpha: 1.0),    // G
+        NSColor(calibratedRed: 0.65, green: 0.0, blue: 0.65, alpha: 1.0),  // m
+    ]
+
+    static func randomFishPartColors() -> [Character: NSColor] {
+        var colors: [Character: NSColor] = ["4": .white]
+        for digit in "12356789" {
+            colors[digit] = asciiquariumFishColors.randomElement()!
+        }
+        return colors
+    }
+
     // Seaweed
     static let seaweedColors: [NSColor] = [
         NSColor(calibratedRed: 0.0, green: 0.8, blue: 0.0, alpha: 1.0),

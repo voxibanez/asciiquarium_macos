@@ -2,20 +2,27 @@ import AppKit
 import Foundation
 
 struct BubbleEntity {
-    var baseX: Int
-    var x: Int
+    var x: Double
     var y: Double
     var speed: Double
     var character: Character
-    var wobbleAmplitude: Double
-    var wobblePhase: Double
-    var wobbleSpeed: Double
     var isDead: Bool = false
 
-    mutating func tick(speedMultiplier: Double = 1.0) {
-        y -= speed * speedMultiplier  // rise upward (row 0 = top)
-        wobblePhase += wobbleSpeed
-        x = baseX + Int((sin(wobblePhase) * wobbleAmplitude).rounded())
+    mutating func tick(columns: Int, bottomRow: Int, speedMultiplier: Double = 1.0) {
+        let distance = speed * speedMultiplier
+        y -= distance
+
+        switch Int.random(in: 0..<10) {
+        case 0:
+            x -= distance
+        case 1:
+            x += distance
+        default:
+            break
+        }
+
+        x = min(max(x, 1.0), Double(columns - 2))
+        y = min(y, Double(bottomRow - 1))
 
         // Reached the surface
         if y < 1.0 {
@@ -31,25 +38,21 @@ struct BubbleEntity {
     }
 
     func render(into grid: GridRenderer) {
-        let row = Int(y.rounded())
-        grid.putChar(character, at: x, row: row, foreground: ColorPalette.bubble)
+        let (col, offset) = grid.colAndOffset(for: x)
+        grid.putChar(character, at: col, row: Int(y.rounded()), foreground: ColorPalette.bubble, xOffset: offset)
     }
 
     static func spawnRandom(columns: Int, bottomRow: Int) -> BubbleEntity {
-        let x = Int.random(in: 2...(columns - 3))
+        let x = Double.random(in: 2.0...Double(columns - 3))
         let chars: [Character] = ["o", "O", ".", "o", "o", "\u{00B0}"]
         let ch = chars.randomElement()!
         let speed = Double.random(in: 0.05...0.18)
-        let wobbleAmp = Double.random(in: 0.0...1.5)
 
         return BubbleEntity(
-            baseX: x, x: x,
+            x: x,
             y: Double(bottomRow - 1),
             speed: speed,
-            character: ch,
-            wobbleAmplitude: wobbleAmp,
-            wobblePhase: Double.random(in: 0.0...(.pi * 2)),
-            wobbleSpeed: Double.random(in: 0.05...0.15)
+            character: ch
         )
     }
 
@@ -57,13 +60,10 @@ struct BubbleEntity {
     static func spawnAt(col: Int, row: Int) -> BubbleEntity {
         let chars: [Character] = [".", "o", "o"]
         return BubbleEntity(
-            baseX: col, x: col,
+            x: Double(col),
             y: Double(row),
             speed: Double.random(in: 0.06...0.14),
-            character: chars.randomElement()!,
-            wobbleAmplitude: Double.random(in: 0.3...1.0),
-            wobblePhase: Double.random(in: 0.0...(.pi * 2)),
-            wobbleSpeed: Double.random(in: 0.06...0.12)
+            character: chars.randomElement()!
         )
     }
 }

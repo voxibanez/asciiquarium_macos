@@ -7,7 +7,17 @@
 \/ o\
 /\__/
 
+@section right.mask
+  11
+61 41
+61111
+
 @section left
 __   
 /o \/
 \__/\
+
+@section left.mask
+11
+14 16
+11116

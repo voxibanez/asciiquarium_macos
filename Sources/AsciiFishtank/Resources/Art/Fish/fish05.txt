@@ -9,9 +9,23 @@
   \_/ 
    /  
 
+@section right.mask
+   2
+  1 1
+661745
+  111
+   3
+
 @section left
   /   
  / \  
 <')_=<
  \_/  
   \   
+
+@section left.mask
+  2
+ 1 1
+547166
+ 111
+  3

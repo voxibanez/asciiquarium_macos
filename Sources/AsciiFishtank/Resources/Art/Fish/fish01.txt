@@ -7,7 +7,17 @@
 ><_'>
   ' 
 
+@section right.mask
+  11
+61145
+  3
+
 @section left
  __  
 <'_><
   `  
+
+@section left.mask
+ 11
+54116
+  3

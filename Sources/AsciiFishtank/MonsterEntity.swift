@@ -80,9 +80,8 @@ struct MonsterEntity {
         let direction: Direction = Bool.random() ? .left : .right
         let x: Double = direction == .right ? Double(-MonsterEntity.width - 5) : Double(columns + 5)
         let speed = Double.random(in: 0.2...0.35)
-        let minY = 5
-        let maxY = max(minY, sandTop - MonsterEntity.height - 2)
-        let y = Int.random(in: minY...maxY)
+        // Nessie rides the waterline like the whale instead of swimming underwater.
+        let y = 1
 
         return MonsterEntity(x: x, direction: direction, speed: speed, y: y)
     }

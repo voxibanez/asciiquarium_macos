@@ -102,7 +102,14 @@ enum ArtLoader {
               let right = parsed.sections["right"], !right.isEmpty,
               let left  = parsed.sections["left"],  !left.isEmpty
         else { return nil }
-        return FishDesign(rightArt: right, leftArt: left, width: w, height: h)
+        return FishDesign(
+            rightArt: right,
+            leftArt: left,
+            rightMask: parsed.sections["right.mask"],
+            leftMask: parsed.sections["left.mask"],
+            width: w,
+            height: h
+        )
     }
 
     /// Load every fish TXT file found in Art/Fish/, plus the builtin fallbacks.
@@ -312,7 +319,17 @@ enum ArtLoader {
 // MARK: - Art repository (loaded once at startup)
 
 final class ArtRepository {
-    static let shared = ArtRepository()
+    private static var _shared: ArtRepository?
+    static var shared: ArtRepository {
+        if _shared == nil {
+            _shared = ArtRepository()
+        }
+        return _shared!
+    }
+    
+    static func free() {
+        _shared = nil
+    }
 
     let fishDesigns: [FishDesign]
     let sharkRight: [String]

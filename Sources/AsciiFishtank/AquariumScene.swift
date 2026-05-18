@@ -1,7 +1,14 @@
 import AppKit
 import Foundation
+import OSLog
+
+private let logger = Logger(subsystem: "com.asciifishtank.screensaver", category: "Scene")
 
 class AquariumScene {
+    deinit {
+        logger.info("AsciiFishtank: AquariumScene deallocated")
+    }
+
     var fish: [FishEntity] = []
     var bubbles: [BubbleEntity] = []
     var seaweed: [SeaweedEntity] = []
@@ -61,11 +68,11 @@ class AquariumScene {
         // Spawn fish - scale count with screen width, using config density
         let fishCount = max(8, columns / config.fishDensity)
         for _ in 0..<fishCount {
-            fish.append(FishEntity.spawnRandom(columns: columns, rows: rows, sandTop: sandTop, stepSize: config.stepSize))
+            fish.append(spawnSeparatedFish())
         }
 
         // Spawn an initial school
-        let school = FishEntity.spawnSchool(columns: columns, rows: rows, sandTop: sandTop, schoolId: nextSchoolId, stepSize: config.stepSize)
+        let school = FishEntity.spawnSchool(columns: columns, rows: rows, sandTop: sandTop, schoolId: nextSchoolId)
         nextSchoolId += 1
         fish.append(contentsOf: school)
 
@@ -123,13 +130,22 @@ class AquariumScene {
         let bubbleThreshold = bubbleRatePerSec * dt * AquariumConfig.baseTickRate
         let colsM2 = columns - 2
         let staggered = config.staggeredMovement && config.stepSize > 1
-        let stepSize = config.stepSize
+        let stepSize = Double(config.stepSize)
         for i in 0..<fish.count {
-            // In staggered mode each fish only moves on its own phase slot.
-            // When stepSize == 1 all offsets are 0 so the guard is always true.
-            if staggered && (frameCount % stepSize) != fish[i].tickOffset { continue }
+            if staggered {
+                // Each fish ticks at its own frequency based on its speed property.
+                // A higher speed makes the accumulator reach the 1.0 threshold faster.
+                fish[i].moveAccumulator += fish[i].speed
+                if fish[i].moveAccumulator < 1.0 { continue }
+                fish[i].moveAccumulator -= 1.0
 
-            fish[i].tick(columns: columns, rows: rows, sandTop: sandTop, speedMultiplier: speedMult)
+                // When it's time to move, jump by exactly the global stepSize.
+                // We pass a multiplier that cancels out the fish's internal speed.
+                fish[i].tick(columns: columns, rows: rows, sandTop: sandTop, 
+                            speedMultiplier: stepSize / fish[i].speed)
+            } else {
+                fish[i].tick(columns: columns, rows: rows, sandTop: sandTop, speedMultiplier: stepSize)
+            }
 
             // Fish bubble emission: emit at a rate of ~(1/fishBubbleChance) per second
             if Double.random(in: 0..<1) < bubbleThreshold {
@@ -139,7 +155,6 @@ class AquariumScene {
                 }
             }
         }
-
         // === Update sharks ===
         if config.sharksEnabled {
             for i in 0..<sharks.count {
@@ -167,7 +182,7 @@ class AquariumScene {
         // Replenish eaten fish (targetFishCount matches setup; hoist out of loop)
         let targetFishCount = max(8, columns / config.fishDensity)
         while fish.count < targetFishCount {
-            var newFish = FishEntity.spawnRandom(columns: columns, rows: rows, sandTop: sandTop, stepSize: stepSize)
+            var newFish = spawnSeparatedFish()
             if newFish.direction == .right {
                 newFish.x = Double(-newFish.design.width - Int.random(in: 5...30))
             } else {
@@ -212,7 +227,7 @@ class AquariumScene {
         }
 
         // === Update crabs ===
-        for i in 0..<crabs.count { crabs[i].tick(columns: columns) }
+        for i in 0..<crabs.count { crabs[i].tick(columns: columns, speedMultiplier: speedMult) }
 
         // === Spawn rare events (real-time accumulators) ===
 
@@ -252,7 +267,7 @@ class AquariumScene {
             schoolAccum = 0
             if Int.random(in: 0..<2) == 0 {
                 let school = FishEntity.spawnSchool(
-                    columns: columns, rows: rows, sandTop: sandTop, schoolId: nextSchoolId, stepSize: stepSize)
+                    columns: columns, rows: rows, sandTop: sandTop, schoolId: nextSchoolId)
                 nextSchoolId += 1
                 fish.append(contentsOf: school)
             }
@@ -268,7 +283,7 @@ class AquariumScene {
 
         // === Update bubbles ===
         for i in 0..<bubbles.count {
-            bubbles[i].tick(speedMultiplier: speedMult)
+            bubbles[i].tick(columns: columns, bottomRow: sandTop, speedMultiplier: speedMult)
         }
         bubbles.removeAll { $0.isDead }
 
@@ -286,52 +301,52 @@ class AquariumScene {
     func render(into grid: GridRenderer) {
         grid.clear()
 
-        // 1. Border
+        // 1. Water surface
+        waterSurface.render(into: grid)
+
+        // 2. Sand floor
+        decorations.renderSand(into: grid)
+
+        // 3. Seaweed (behind everything underwater)
+        for i in seaweed.indices { seaweed[i].render(into: grid) }
+
+        // 4. Treasure chest
+        treasureChest?.render(into: grid)
+
+        // 5. Decorations (rocks, castle, shells)
+        decorations.renderObjects(into: grid)
+
+        // 6. Crabs (on sand, in front of decorations)
+        for i in crabs.indices { crabs[i].render(into: grid) }
+
+        // 7. Jellyfish (behind fish)
+        for i in jellyfish.indices { jellyfish[i].render(into: grid) }
+
+        // 8. Fish
+        for i in fish.indices { fish[i].render(into: grid) }
+
+        // 9. Whales
+        for i in whales.indices { whales[i].render(into: grid) }
+
+        // 10. Monsters
+        for i in monsters.indices { monsters[i].render(into: grid) }
+
+        // 11. Sharks (in front of fish)
+        for i in sharks.indices { sharks[i].render(into: grid) }
+
+        // 12. Splats (on top of everything underwater)
+        for i in splats.indices { splats[i].render(into: grid) }
+
+        // 13. Bubbles (front-most underwater layer)
+        for i in bubbles.indices { bubbles[i].render(into: grid) }
+
+        // 14. Ships (on top of water, above everything)
+        for i in ships.indices { ships[i].render(into: grid, waterRow: waterRow) }
+
+        // 15. Border (draw last so it covers entities entering from off-screen)
         if config.showBorder {
             drawBorder(into: grid)
         }
-
-        // 2. Water surface
-        waterSurface.render(into: grid)
-
-        // 3. Sand floor
-        decorations.renderSand(into: grid)
-
-        // 4. Seaweed (behind everything underwater)
-        for i in seaweed.indices { seaweed[i].render(into: grid) }
-
-        // 5. Treasure chest
-        treasureChest?.render(into: grid)
-
-        // 6. Decorations (rocks, castle, shells)
-        decorations.renderObjects(into: grid)
-
-        // 7. Crabs (on sand, in front of decorations)
-        for i in crabs.indices { crabs[i].render(into: grid) }
-
-        // 8. Jellyfish (behind fish)
-        for i in jellyfish.indices { jellyfish[i].render(into: grid) }
-
-        // 9. Fish
-        for i in fish.indices { fish[i].render(into: grid) }
-
-        // 10. Whales
-        for i in whales.indices { whales[i].render(into: grid) }
-
-        // 11. Monsters
-        for i in monsters.indices { monsters[i].render(into: grid) }
-
-        // 12. Sharks (in front of fish)
-        for i in sharks.indices { sharks[i].render(into: grid) }
-
-        // 13. Splats (on top of everything underwater)
-        for i in splats.indices { splats[i].render(into: grid) }
-
-        // 14. Bubbles (front-most underwater layer)
-        for i in bubbles.indices { bubbles[i].render(into: grid) }
-
-        // 15. Ships (on top of water, above everything)
-        for i in ships.indices { ships[i].render(into: grid, waterRow: waterRow) }
     }
 
     private func drawBorder(into grid: GridRenderer) {
@@ -352,4 +367,37 @@ class AquariumScene {
         grid.putChar("+", at: 0, row: rows - 1, foreground: color, bold: true)
         grid.putChar("+", at: columns - 1, row: rows - 1, foreground: color, bold: true)
     }
+
+    private func spawnSeparatedFish() -> FishEntity {
+        var candidate = FishEntity.spawnRandom(columns: columns, rows: rows, sandTop: sandTop)
+        for _ in 0..<12 {
+            guard fish.contains(where: { fishNearlyFullyOverlap(candidate, $0) }) else {
+                return candidate
+            }
+            candidate = FishEntity.spawnRandom(columns: columns, rows: rows, sandTop: sandTop)
+        }
+        return candidate
+    }
+
+    private func fishNearlyFullyOverlap(_ lhs: FishEntity, _ rhs: FishEntity) -> Bool {
+        let lhsLeft = Int(lhs.x.rounded())
+        let lhsRight = lhsLeft + lhs.design.width
+        let rhsLeft = Int(rhs.x.rounded())
+        let rhsRight = rhsLeft + rhs.design.width
+
+        let lhsTop = lhs.y
+        let lhsBottom = lhs.y + lhs.design.height
+        let rhsTop = rhs.y
+        let rhsBottom = rhs.y + rhs.design.height
+
+        let overlapWidth = min(lhsRight, rhsRight) - max(lhsLeft, rhsLeft)
+        let overlapHeight = min(lhsBottom, rhsBottom) - max(lhsTop, rhsTop)
+        guard overlapWidth > 0, overlapHeight > 0 else { return false }
+
+        let lhsArea = lhs.design.width * lhs.design.height
+        let rhsArea = rhs.design.width * rhs.design.height
+        let smallerArea = max(1, min(lhsArea, rhsArea))
+        return Double(overlapWidth * overlapHeight) / Double(smallerArea) > 0.65
+    }
+
 }

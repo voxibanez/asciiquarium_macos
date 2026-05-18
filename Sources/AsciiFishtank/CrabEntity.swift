@@ -46,7 +46,7 @@ struct CrabEntity {
 
     static let crabColor = NSColor(calibratedRed: 1.0, green: 0.3, blue: 0.2, alpha: 1.0)
 
-    mutating func tick(columns: Int) {
+    mutating func tick(columns: Int, speedMultiplier: Double = 1.0) {
         frameCounter += 1
 
         // Occasionally pause to look around
@@ -62,7 +62,7 @@ struct CrabEntity {
             }
         }
 
-        x += speed * direction.sign
+        x += speed * direction.sign * speedMultiplier
 
         // Walk animation - scuttle legs
         if frameCounter % 5 == 0 {
@@ -90,7 +90,7 @@ struct CrabEntity {
     static func spawnRandom(columns: Int, sandRow: Int) -> CrabEntity {
         let x = Double.random(in: 2.0...Double(columns - CrabEntity.width - 2))
         let direction: Direction = Bool.random() ? .left : .right
-        let speed = Double.random(in: 0.04...0.12)
+        let speed = Double.random(in: 0.08...0.2)
 
         return CrabEntity(
             x: x,

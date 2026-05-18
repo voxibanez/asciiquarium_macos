@@ -7,7 +7,17 @@
 >='   ('>
   '''/'' 
 
+@section right.mask
+   1121
+661   745
+  111311
+
 @section left
   ,/..   
 <')   `=<
  ``\```  
+
+@section left.mask
+  1211
+547   166
+ 113111
