@@ -96,6 +96,12 @@ Run the test suite:
 make test
 ```
 
+Create a distributable zip locally:
+
+```sh
+make package VERSION=local
+```
+
 ## Build details
 
 The Makefile compiles the Swift sources directly with `swiftc`, links against
@@ -136,6 +142,28 @@ To reinstall from the tap source during development:
 ```sh
 brew update
 brew reinstall --build-from-source ascii-fishtank
+```
+
+## GitHub releases
+
+The GitHub Actions workflow runs on pull requests, pushes to `main`, and tags
+matching `v*`.
+
+For every run, it:
+
+- runs `make test`
+- builds `AsciiFishtank.saver`
+- packages a zip artifact from the built saver, `LICENSE`, `NOTICE`, and `README.md`
+- uploads the zip as a workflow artifact
+
+For tag pushes, it also creates or updates a GitHub Release and uploads the
+same zip as a release asset.
+
+To publish a release:
+
+```sh
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
 ## License and attribution

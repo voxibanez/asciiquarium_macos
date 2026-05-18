@@ -5,6 +5,11 @@ TEST_SOURCES = $(wildcard Tests/AsciiFishtankTests/*.swift)
 ART_FILES = $(shell find Sources/AsciiFishtank/Resources/Art -name "*.txt" 2>/dev/null)
 BINARY = $(SAVER)/Contents/MacOS/$(BUNDLE_NAME)
 TEST_BINARY = .build/asciifishtank-tests
+VERSION ?= dev
+DIST_DIR = dist
+PACKAGE_ROOT = $(DIST_DIR)/$(BUNDLE_NAME)-$(VERSION)
+ARCHIVE = $(DIST_DIR)/$(BUNDLE_NAME)-$(VERSION).zip
+ARCHIVE_NAME = $(BUNDLE_NAME)-$(VERSION).zip
 SDK = $(shell xcrun --sdk macosx --show-sdk-path)
 ARCH = $(shell uname -m)
 MIN_VERSION = 14.0
@@ -28,7 +33,9 @@ $(SAVER): $(SOURCES) Sources/AsciiFishtank/Resources/Info.plist $(ART_FILES) LIC
 		-O \
 		-whole-module-optimization
 	cp Sources/AsciiFishtank/Resources/Info.plist $(SAVER)/Contents/Info.plist
-	cp -R Sources/AsciiFishtank/Resources/Art $(SAVER)/Contents/Resources/
+	mkdir -p $(SAVER)/Contents/Resources/Art
+	rsync -a --delete --exclude '.DS_Store' --exclude '._*' \
+		Sources/AsciiFishtank/Resources/Art/ $(SAVER)/Contents/Resources/Art/
 	cp LICENSE NOTICE $(SAVER)/Contents/Resources/
 	codesign -s - -f $(SAVER)
 
@@ -54,10 +61,19 @@ test: $(SOURCES) $(TEST_SOURCES)
 		-framework QuartzCore
 	$(TEST_BINARY)
 
+package: $(SAVER)
+	rm -rf $(DIST_DIR)
+	mkdir -p $(PACKAGE_ROOT)
+	cp -R $(SAVER) $(PACKAGE_ROOT)/
+	cp LICENSE NOTICE README.md $(PACKAGE_ROOT)/
+	find $(PACKAGE_ROOT) \( -name '.DS_Store' -o -name '._*' \) -delete
+	rm -f $(ARCHIVE)
+	cd $(DIST_DIR) && zip -qry -X $(ARCHIVE_NAME) $(BUNDLE_NAME)-$(VERSION)
+
 uninstall:
 	rm -rf ~/Library/Screen\ Savers/$(SAVER)
 
 clean:
-	rm -rf $(SAVER)
+	rm -rf $(SAVER) $(DIST_DIR)
 
-.PHONY: all install install-prefix test uninstall clean
+.PHONY: all install install-prefix test package uninstall clean
