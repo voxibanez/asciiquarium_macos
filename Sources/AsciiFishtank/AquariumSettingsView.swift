@@ -25,6 +25,7 @@ class SettingsViewModel {
     }
 }
 
+@MainActor
 struct AquariumSettingsView: View {
     var viewModel: SettingsViewModel
     var onOK: () -> Void
