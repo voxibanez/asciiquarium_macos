@@ -5,7 +5,7 @@ ASCII Fishtank is a macOS screen saver built with Swift and ScreenSaver.framewor
 ## Install with Homebrew
 
 ```sh
-brew tap voxibanez/asciiquarium_macos
+brew tap voxibanez/asciiquarium_macos https://github.com/voxibanez/asciiquarium_macos.git
 brew install ascii-fishtank
 mkdir -p "$HOME/Library/Screen Savers"
 ln -sfn "$(brew --prefix ascii-fishtank)/AsciiFishtank.saver" "$HOME/Library/Screen Savers/AsciiFishtank.saver"
