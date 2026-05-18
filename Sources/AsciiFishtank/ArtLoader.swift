@@ -29,25 +29,25 @@ struct ParsedArtFile {
 
             if line.hasPrefix("@") {
                 let directive = line.dropFirst()   // strip @
-                if directive.lowercased().hasPrefix("width") {
-                    let parts = directive.split(separator: " ", maxSplits: 1)
-                    if parts.count == 2, let v = Int(parts[1].trimmingCharacters(in: .whitespaces)) {
+                let parts = directive.split(maxSplits: 1, whereSeparator: { $0 == " " || $0 == "\t" })
+                let command = parts.first?.lowercased()
+
+                if command == "width" {
+                    if parts.count == 2, let v = Int(parts[1].trimmingCharacters(in: .whitespacesAndNewlines)) {
                         result.width = v
                     }
-                } else if directive.lowercased().hasPrefix("height") {
-                    let parts = directive.split(separator: " ", maxSplits: 1)
-                    if parts.count == 2, let v = Int(parts[1].trimmingCharacters(in: .whitespaces)) {
+                    continue
+                } else if command == "height" {
+                    if parts.count == 2, let v = Int(parts[1].trimmingCharacters(in: .whitespacesAndNewlines)) {
                         result.height = v
                     }
-                } else if directive.lowercased().hasPrefix("section") {
-                    let parts = directive.split(separator: " ", maxSplits: 1)
-                    if parts.count == 2 {
-                        let name = parts[1].trimmingCharacters(in: .whitespaces).lowercased()
-                        currentSection = name
-                        result.sections[name] = []   // create even if empty
-                    }
+                    continue
+                } else if command == "section", parts.count == 2 {
+                    let name = parts[1].trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                    currentSection = name
+                    result.sections[name] = []   // create even if empty
+                    continue
                 }
-                continue
             }
 
             if let sec = currentSection {
@@ -58,7 +58,7 @@ struct ParsedArtFile {
         // Strip leading/trailing blank lines from each section, but keep
         // internal blank lines (they are intentional art rows).
         for key in result.sections.keys {
-            var lines = result.sections[key]!
+            var lines = result.sections[key, default: []]
             while lines.first?.trimmingCharacters(in: .whitespaces).isEmpty == true { lines.removeFirst() }
             while lines.last?.trimmingCharacters(in: .whitespaces).isEmpty == true { lines.removeLast() }
             result.sections[key] = lines
@@ -117,12 +117,11 @@ enum ArtLoader {
         )
     }
 
-    /// Load every fish TXT file found in Art/Fish/, plus the builtin fallbacks.
+    /// Load every fish TXT file found in Art/Fish/, or use builtin fallbacks if none are found.
     static func loadAllFishDesigns() -> [FishDesign] {
         var designs: [FishDesign] = []
         for url in ArtBundleLocator.urls(inFolder: "Fish") {
-            guard let text = try? String(contentsOf: url, encoding: .utf8) else { continue }
-            let parsed = ParsedArtFile.parse(text)
+            guard let parsed = parsedArtFile(at: url) else { continue }
             if let d = fishDesign(from: parsed) {
                 designs.append(d)
             }
@@ -133,16 +132,15 @@ enum ArtLoader {
 
     // MARK: Shark
 
+    static func sharkArt(from parsed: ParsedArtFile) -> (right: [String], left: [String], width: Int, height: Int)? {
+        directionalArt(from: parsed)
+    }
+
     static func loadShark() -> (right: [String], left: [String], width: Int, height: Int)? {
         guard let url = ArtBundleLocator.url(forFile: "shark", inFolder: "Shark"),
-              let text = try? String(contentsOf: url, encoding: .utf8)
+              let parsed = parsedArtFile(at: url)
         else { return nil }
-        let p = ParsedArtFile.parse(text)
-        guard let w = p.width, let h = p.height,
-              let right = p.sections["right"], !right.isEmpty,
-              let left  = p.sections["left"],  !left.isEmpty
-        else { return nil }
-        return (right, left, w, h)
+        return sharkArt(from: parsed)
     }
 
     // MARK: Whale
@@ -155,28 +153,22 @@ enum ArtLoader {
         let height: Int
     }
 
-    static func loadWhale() -> WhaleArt? {
-        guard let url = ArtBundleLocator.url(forFile: "whale", inFolder: "Whale"),
-              let text = try? String(contentsOf: url, encoding: .utf8)
-        else { return nil }
-        let p = ParsedArtFile.parse(text)
-        guard let w = p.width, let h = p.height,
-              let right = p.sections["body.right"], !right.isEmpty,
-              let left  = p.sections["body.left"],  !left.isEmpty
+    static func whaleArt(from parsed: ParsedArtFile) -> WhaleArt? {
+        guard let w = parsed.width, let h = parsed.height,
+              let right = parsed.sections["body.right"], !right.isEmpty,
+              let left  = parsed.sections["body.left"],  !left.isEmpty
         else { return nil }
 
-        // Collect spout.0, spout.1, ... in order until no more found.
-        var spout: [[String]] = []
-        var i = 0
-        while true {
-            let key = "spout.\(i)"
-            if p.sections[key] != nil {
-                spout.append(p.sections[key]!)   // may be empty (no-spout frame)
-                i += 1
-            } else { break }
-        }
+        let spout = collectFrames(prefix: "spout", from: parsed)
         return WhaleArt(rightBody: right, leftBody: left,
                         spoutFrames: spout, width: w, height: h)
+    }
+
+    static func loadWhale() -> WhaleArt? {
+        guard let url = ArtBundleLocator.url(forFile: "whale", inFolder: "Whale"),
+              let parsed = parsedArtFile(at: url)
+        else { return nil }
+        return whaleArt(from: parsed)
     }
 
     // MARK: Monster
@@ -188,43 +180,48 @@ enum ArtLoader {
         let height: Int
     }
 
-    static func loadMonster() -> MonsterArt? {
-        guard let url = ArtBundleLocator.url(forFile: "monster", inFolder: "Monster"),
-              let text = try? String(contentsOf: url, encoding: .utf8)
-        else { return nil }
-        let p = ParsedArtFile.parse(text)
-        guard let w = p.width, let h = p.height else { return nil }
-        let right = collectFrames(prefix: "right", from: p)
-        let left  = collectFrames(prefix: "left",  from: p)
+    static func monsterArt(from parsed: ParsedArtFile) -> MonsterArt? {
+        guard let w = parsed.width, let h = parsed.height else { return nil }
+        let right = collectFrames(prefix: "right", from: parsed)
+        let left  = collectFrames(prefix: "left",  from: parsed)
         guard !right.isEmpty, !left.isEmpty else { return nil }
         return MonsterArt(rightFrames: right, leftFrames: left, width: w, height: h)
     }
 
+    static func loadMonster() -> MonsterArt? {
+        guard let url = ArtBundleLocator.url(forFile: "monster", inFolder: "Monster"),
+              let parsed = parsedArtFile(at: url)
+        else { return nil }
+        return monsterArt(from: parsed)
+    }
+
     // MARK: Ship
+
+    static func shipArt(from parsed: ParsedArtFile) -> (right: [String], left: [String], width: Int, height: Int)? {
+        directionalArt(from: parsed)
+    }
 
     static func loadShip() -> (right: [String], left: [String], width: Int, height: Int)? {
         guard let url = ArtBundleLocator.url(forFile: "ship", inFolder: "Ship"),
-              let text = try? String(contentsOf: url, encoding: .utf8)
+              let parsed = parsedArtFile(at: url)
         else { return nil }
-        let p = ParsedArtFile.parse(text)
-        guard let w = p.width, let h = p.height,
-              let right = p.sections["right"], !right.isEmpty,
-              let left  = p.sections["left"],  !left.isEmpty
-        else { return nil }
-        return (right, left, w, h)
+        return shipArt(from: parsed)
     }
 
     // MARK: Jellyfish
 
-    static func loadJellyfish() -> (expanded: [String], contracted: [String])? {
-        guard let url = ArtBundleLocator.url(forFile: "jellyfish", inFolder: "Jellyfish"),
-              let text = try? String(contentsOf: url, encoding: .utf8)
-        else { return nil }
-        let p = ParsedArtFile.parse(text)
-        guard let exp = p.sections["expanded"],    !exp.isEmpty,
-              let con = p.sections["contracted"],  !con.isEmpty
+    static func jellyfishArt(from parsed: ParsedArtFile) -> (expanded: [String], contracted: [String])? {
+        guard let exp = parsed.sections["expanded"],    !exp.isEmpty,
+              let con = parsed.sections["contracted"],  !con.isEmpty
         else { return nil }
         return (exp, con)
+    }
+
+    static func loadJellyfish() -> (expanded: [String], contracted: [String])? {
+        guard let url = ArtBundleLocator.url(forFile: "jellyfish", inFolder: "Jellyfish"),
+              let parsed = parsedArtFile(at: url)
+        else { return nil }
+        return jellyfishArt(from: parsed)
     }
 
     // MARK: Crab
@@ -236,39 +233,48 @@ enum ArtLoader {
         let height: Int
     }
 
-    static func loadCrab() -> CrabArt? {
-        guard let url = ArtBundleLocator.url(forFile: "crab", inFolder: "Crab"),
-              let text = try? String(contentsOf: url, encoding: .utf8)
-        else { return nil }
-        let p = ParsedArtFile.parse(text)
-        guard let w = p.width, let h = p.height else { return nil }
-        let right = collectFrames(prefix: "right", from: p)
-        let left  = collectFrames(prefix: "left",  from: p)
+    static func crabArt(from parsed: ParsedArtFile) -> CrabArt? {
+        guard let w = parsed.width, let h = parsed.height else { return nil }
+        let right = collectFrames(prefix: "right", from: parsed)
+        let left  = collectFrames(prefix: "left",  from: parsed)
         guard !right.isEmpty, !left.isEmpty else { return nil }
         return CrabArt(rightFrames: right, leftFrames: left, width: w, height: h)
     }
 
+    static func loadCrab() -> CrabArt? {
+        guard let url = ArtBundleLocator.url(forFile: "crab", inFolder: "Crab"),
+              let parsed = parsedArtFile(at: url)
+        else { return nil }
+        return crabArt(from: parsed)
+    }
+
     // MARK: Splat
+
+    static func splatFrames(from parsed: ParsedArtFile) -> [[String]] {
+        collectFrames(prefix: "frame", from: parsed)
+    }
 
     static func loadSplat() -> [[String]] {
         guard let url = ArtBundleLocator.url(forFile: "splat", inFolder: "Splat"),
-              let text = try? String(contentsOf: url, encoding: .utf8)
+              let parsed = parsedArtFile(at: url)
         else { return [] }
-        let p = ParsedArtFile.parse(text)
-        return collectFrames(prefix: "frame", from: p)
+        return splatFrames(from: parsed)
     }
 
     // MARK: Treasure chest
 
-    static func loadChest() -> (open: [String], closed: [String])? {
-        guard let url = ArtBundleLocator.url(forFile: "chest", inFolder: "TreasureChest"),
-              let text = try? String(contentsOf: url, encoding: .utf8)
-        else { return nil }
-        let p = ParsedArtFile.parse(text)
-        guard let open   = p.sections["open"],   !open.isEmpty,
-              let closed = p.sections["closed"], !closed.isEmpty
+    static func chestArt(from parsed: ParsedArtFile) -> (open: [String], closed: [String])? {
+        guard let open   = parsed.sections["open"],   !open.isEmpty,
+              let closed = parsed.sections["closed"], !closed.isEmpty
         else { return nil }
         return (open, closed)
+    }
+
+    static func loadChest() -> (open: [String], closed: [String])? {
+        guard let url = ArtBundleLocator.url(forFile: "chest", inFolder: "TreasureChest"),
+              let parsed = parsedArtFile(at: url)
+        else { return nil }
+        return chestArt(from: parsed)
     }
 
     // MARK: Decorations
@@ -281,19 +287,15 @@ enum ArtLoader {
         let shells: [(art: String, color: NSColor)]
     }
 
-    static func loadDecorations() -> DecorationArt? {
-        guard let url = ArtBundleLocator.url(forFile: "decorations", inFolder: "Decorations"),
-              let text = try? String(contentsOf: url, encoding: .utf8)
-        else { return nil }
-        let p = ParsedArtFile.parse(text)
-        guard let castle = p.sections["castle"], !castle.isEmpty else { return nil }
+    static func decorationArt(from parsed: ParsedArtFile) -> DecorationArt? {
+        guard let castle = parsed.sections["castle"], !castle.isEmpty else { return nil }
 
-        let rocks  = collectFrames(prefix: "rock",  from: p)
+        let rocks  = collectFrames(prefix: "rock",  from: parsed)
 
         // Shells are single-line art with alternating colors.
         var shells: [(art: String, color: NSColor)] = []
         var si = 0
-        while let lines = p.sections["shell.\(si)"], !lines.isEmpty {
+        while let lines = parsed.sections["shell.\(si)"], !lines.isEmpty {
             let art = lines[0]
             // Lines containing "*" are starfish-colored; everything else uses shell color.
             let isStarfish = art.contains("*")
@@ -307,10 +309,35 @@ enum ArtLoader {
                              rocks: rocks, shells: shells)
     }
 
+    static func loadDecorations() -> DecorationArt? {
+        guard let url = ArtBundleLocator.url(forFile: "decorations", inFolder: "Decorations"),
+              let parsed = parsedArtFile(at: url)
+        else { return nil }
+        return decorationArt(from: parsed)
+    }
+
     // MARK: - Helpers
 
+    private static func parsedArtFile(at url: URL) -> ParsedArtFile? {
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return nil }
+        return ParsedArtFile.parse(text)
+    }
+
+    private static func directionalArt(from parsed: ParsedArtFile) -> (
+        right: [String],
+        left: [String],
+        width: Int,
+        height: Int
+    )? {
+        guard let width = parsed.width, let height = parsed.height,
+              let right = parsed.sections["right"], !right.isEmpty,
+              let left = parsed.sections["left"], !left.isEmpty
+        else { return nil }
+        return (right, left, width, height)
+    }
+
     /// Collect sections named "<prefix>.0", "<prefix>.1", ... in order.
-    private static func collectFrames(prefix: String, from p: ParsedArtFile) -> [[String]] {
+    static func collectFrames(prefix: String, from p: ParsedArtFile) -> [[String]] {
         var frames: [[String]] = []
         var i = 0
         while let lines = p.sections["\(prefix).\(i)"] {

@@ -1,8 +1,10 @@
 BUNDLE_NAME = AsciiFishtank
 SAVER = $(BUNDLE_NAME).saver
 SOURCES = $(wildcard Sources/AsciiFishtank/*.swift)
+TEST_SOURCES = $(wildcard Tests/AsciiFishtankTests/*.swift)
 ART_FILES = $(shell find Sources/AsciiFishtank/Resources/Art -name "*.txt" 2>/dev/null)
 BINARY = $(SAVER)/Contents/MacOS/$(BUNDLE_NAME)
+TEST_BINARY = .build/asciifishtank-tests
 SDK = $(shell xcrun --sdk macosx --show-sdk-path)
 ARCH = $(shell uname -m)
 MIN_VERSION = 14.0
@@ -40,10 +42,22 @@ install-prefix: $(SAVER)
 	mkdir -p $(PREFIX)
 	cp -R $(SAVER) $(PREFIX)/
 
+test: $(SOURCES) $(TEST_SOURCES)
+	mkdir -p .build
+	swiftc $(SOURCES) $(TEST_SOURCES) \
+		-o $(TEST_BINARY) \
+		-module-name $(BUNDLE_NAME)Tests \
+		-sdk $(SDK) \
+		-target $(ARCH)-apple-macosx$(MIN_VERSION) \
+		-framework ScreenSaver \
+		-framework AppKit \
+		-framework QuartzCore
+	$(TEST_BINARY)
+
 uninstall:
 	rm -rf ~/Library/Screen\ Savers/$(SAVER)
 
 clean:
 	rm -rf $(SAVER)
 
-.PHONY: all install install-prefix uninstall clean
+.PHONY: all install install-prefix test uninstall clean

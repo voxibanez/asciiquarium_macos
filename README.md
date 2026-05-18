@@ -90,6 +90,12 @@ To remove build output:
 make clean
 ```
 
+Run the test suite:
+
+```sh
+make test
+```
+
 ## Build details
 
 The Makefile compiles the Swift sources directly with `swiftc`, links against
@@ -119,6 +125,7 @@ Formula/ascii-fishtank.rb
 Useful local checks:
 
 ```sh
+make test
 brew style Formula/ascii-fishtank.rb
 brew audit --strict --formula voxibanez/asciiquarium_macos/ascii-fishtank
 brew test ascii-fishtank
