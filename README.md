@@ -157,7 +157,51 @@ For every run, it:
 - uploads the zip as a workflow artifact
 
 For tag pushes, it also creates or updates a GitHub Release and uploads the
-same zip as a release asset.
+same zip as a release asset. Tagged releases are Developer ID signed,
+submitted to Apple for notarization, stapled, verified, and then packaged.
+
+### GitHub secrets for notarized releases
+
+Tagged release builds require these repository secrets:
+
+```text
+APPLE_CERTIFICATE_BASE64
+APPLE_CERTIFICATE_PASSWORD
+APPLE_SIGNING_IDENTITY
+APPLE_ID
+APPLE_TEAM_ID
+APPLE_APP_PASSWORD
+KEYCHAIN_PASSWORD
+```
+
+To set them, open GitHub > repository Settings > Secrets and variables >
+Actions > New repository secret.
+
+`APPLE_CERTIFICATE_BASE64` is a base64-encoded `.p12` export of your
+Developer ID Application certificate:
+
+```sh
+base64 -i DeveloperIDApplication.p12 | pbcopy
+```
+
+`APPLE_CERTIFICATE_PASSWORD` is the password used when exporting that `.p12`.
+
+`APPLE_SIGNING_IDENTITY` is the full codesigning identity name, for example:
+
+```text
+Developer ID Application: Your Name (TEAMID)
+```
+
+You can find the exact identity on your Mac with:
+
+```sh
+security find-identity -v -p codesigning
+```
+
+`APPLE_ID` is your Apple ID email. `APPLE_TEAM_ID` is the 10-character Apple
+Developer Team ID. `APPLE_APP_PASSWORD` is an app-specific password generated
+at <https://appleid.apple.com/account/manage>. `KEYCHAIN_PASSWORD` can be any
+strong random value used only for the temporary CI keychain.
 
 To publish a release:
 

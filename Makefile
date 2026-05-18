@@ -14,6 +14,8 @@ SDK = $(shell xcrun --sdk macosx --show-sdk-path)
 ARCH = $(shell uname -m)
 MIN_VERSION = 14.0
 PREFIX ?= /usr/local
+CODESIGN_IDENTITY ?= -
+CODESIGN_FLAGS ?=
 
 all: $(SAVER)
 
@@ -37,7 +39,7 @@ $(SAVER): $(SOURCES) Sources/AsciiFishtank/Resources/Info.plist $(ART_FILES) LIC
 	rsync -a --delete --exclude '.DS_Store' --exclude '._*' \
 		Sources/AsciiFishtank/Resources/Art/ $(SAVER)/Contents/Resources/Art/
 	cp LICENSE NOTICE $(SAVER)/Contents/Resources/
-	codesign -s - -f $(SAVER)
+	codesign --sign "$(CODESIGN_IDENTITY)" --force $(CODESIGN_FLAGS) $(SAVER)
 
 install: $(SAVER)
 	mkdir -p ~/Library/Screen\ Savers
