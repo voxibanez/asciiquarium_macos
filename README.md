@@ -8,43 +8,14 @@ This project is a Swift/macOS port inspired by and derived from
 [Asciiquarium](https://robobunny.com/projects/asciiquarium/) v1.1 by
 Kirk Baucom.
 
-## Requirements
-
-- macOS 14 Sonoma or newer
-- Xcode Command Line Tools
-- Homebrew, if installing with `brew`
-
-To install the Xcode Command Line Tools:
-
-```sh
-xcode-select --install
-```
-
 ## Install with Homebrew
 
-Because this repository is also the tap, use the explicit tap URL.
-
-For the notarized release build, install the cask:
+The recommended install path is the Homebrew cask. It installs the notarized
+release build directly into your user screen savers folder.
 
 ```sh
 brew tap voxibanez/asciiquarium_macos https://github.com/voxibanez/asciiquarium_macos.git
 brew install --cask ascii-fishtank
-```
-
-Then open System Settings > Screen Saver and select ASCII Fishtank.
-
-The source-build formula is also available:
-
-```sh
-brew install ascii-fishtank
-```
-
-The formula installs the saver under Homebrew's prefix. Link it into your user
-screen savers folder so macOS can find it:
-
-```sh
-mkdir -p "$HOME/Library/Screen Savers"
-ln -sfn "$(brew --prefix ascii-fishtank)/AsciiFishtank.saver" "$HOME/Library/Screen Savers/AsciiFishtank.saver"
 ```
 
 Then open System Settings > Screen Saver and select ASCII Fishtank.
@@ -63,7 +34,52 @@ brew uninstall --cask ascii-fishtank
 brew untap voxibanez/asciiquarium_macos
 ```
 
+### Build from source with Homebrew
+
+If you prefer Homebrew to compile from the current tap source, install the
+formula instead of the cask:
+
+```sh
+brew install ascii-fishtank
+```
+
+The formula installs the saver under Homebrew's prefix. Link it into your user
+screen savers folder so macOS can find it:
+
+```sh
+mkdir -p "$HOME/Library/Screen Savers"
+ln -sfn "$(brew --prefix ascii-fishtank)/AsciiFishtank.saver" "$HOME/Library/Screen Savers/AsciiFishtank.saver"
+```
+
+Then open System Settings > Screen Saver and select ASCII Fishtank.
+
+To reinstall the formula from source during development:
+
+```sh
+brew update
+brew reinstall --build-from-source ascii-fishtank
+```
+
+To remove the formula install:
+
+```sh
+rm -f "$HOME/Library/Screen Savers/AsciiFishtank.saver"
+brew uninstall ascii-fishtank
+brew untap voxibanez/asciiquarium_macos
+```
+
 ## Build from source
+
+### Requirements
+
+- macOS 14 Sonoma or newer
+- Xcode Command Line Tools
+
+To install the Xcode Command Line Tools:
+
+```sh
+xcode-select --install
+```
 
 Clone the repository and build the saver bundle:
 

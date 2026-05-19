@@ -43,7 +43,7 @@ struct JellyfishEntity {
     static let jellyColor  = NSColor(calibratedRed: 0.8, green: 0.5, blue: 1.0, alpha: 0.9)
     static let jellyColor2 = NSColor(calibratedRed: 0.6, green: 0.8, blue: 1.0, alpha: 0.9)
 
-    mutating func tick(columns: Int, rows: Int) {
+    mutating func tick(rows: Int) {
         frameCounter += 1
         phase += pulseSpeed
 

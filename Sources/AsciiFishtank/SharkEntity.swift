@@ -82,7 +82,7 @@ struct SharkEntity {
         return horizontalOverlap && verticalOverlap
     }
 
-    static func spawnRandom(columns: Int, rows: Int, sandTop: Int) -> SharkEntity {
+    static func spawnRandom(sandTop: Int) -> SharkEntity {
         let direction: Direction = .right
         let x: Double = Double(-SharkEntity.width - 5)
         let speed = Double.random(in: 0.3...0.5)

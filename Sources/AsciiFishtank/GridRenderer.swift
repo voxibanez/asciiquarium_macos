@@ -36,7 +36,10 @@ class GridRenderer {
     private var paletteIndex: [ObjectIdentifier: UInt16] = [:]
 
     private struct AttrKey: Hashable {
-        let colorIndex: UInt16; let bold: Bool
+        // periphery:ignore
+        let colorIndex: UInt16
+        // periphery:ignore
+        let bold: Bool
     }
     private var attrCache: [AttrKey: [NSAttributedString.Key: Any]] = [:]
 
@@ -47,9 +50,13 @@ class GridRenderer {
     // Cache for pre-rendered lines (runs of characters).
     // Keyed by the string content, color, bold state, and quantized xOffset.
     private struct RunKey: Hashable {
+        // periphery:ignore
         let text: String
+        // periphery:ignore
         let colorIndex: UInt16
+        // periphery:ignore
         let bold: Bool
+        // periphery:ignore
         let quantizedOffset: Int // Offset in 0.25px units
     }
     private var runCache: [RunKey: CTLine] = [:]
@@ -146,7 +153,7 @@ class GridRenderer {
         }
     }
 
-    func render(dirtyRect: NSRect) {
+    func render(dirtyRect _: NSRect) {
         guard let ctx = NSGraphicsContext.current?.cgContext else { return }
 
         ctx.setFillColor(backgroundCGColor)

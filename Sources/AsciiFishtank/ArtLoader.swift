@@ -150,18 +150,17 @@ enum ArtLoader {
         let leftBody: [String]
         let spoutFrames: [[String]]   // index 0 may be empty = no spout
         let width: Int
-        let height: Int
     }
 
     static func whaleArt(from parsed: ParsedArtFile) -> WhaleArt? {
-        guard let w = parsed.width, let h = parsed.height,
+        guard let w = parsed.width, parsed.height != nil,
               let right = parsed.sections["body.right"], !right.isEmpty,
               let left  = parsed.sections["body.left"],  !left.isEmpty
         else { return nil }
 
         let spout = collectFrames(prefix: "spout", from: parsed)
         return WhaleArt(rightBody: right, leftBody: left,
-                        spoutFrames: spout, width: w, height: h)
+                        spoutFrames: spout, width: w)
     }
 
     static func loadWhale() -> WhaleArt? {
@@ -177,15 +176,14 @@ enum ArtLoader {
         let rightFrames: [[String]]
         let leftFrames: [[String]]
         let width: Int
-        let height: Int
     }
 
     static func monsterArt(from parsed: ParsedArtFile) -> MonsterArt? {
-        guard let w = parsed.width, let h = parsed.height else { return nil }
+        guard let w = parsed.width, parsed.height != nil else { return nil }
         let right = collectFrames(prefix: "right", from: parsed)
         let left  = collectFrames(prefix: "left",  from: parsed)
         guard !right.isEmpty, !left.isEmpty else { return nil }
-        return MonsterArt(rightFrames: right, leftFrames: left, width: w, height: h)
+        return MonsterArt(rightFrames: right, leftFrames: left, width: w)
     }
 
     static func loadMonster() -> MonsterArt? {
@@ -373,12 +371,10 @@ final class ArtRepository {
     let whaleLeftBody: [String]
     let whaleSpoutFrames: [[String]]
     let whaleWidth: Int
-    let whaleHeight: Int
 
     let monsterRightFrames: [[String]]
     let monsterLeftFrames: [[String]]
     let monsterWidth: Int
-    let monsterHeight: Int
 
     let shipRight: [String]
     let shipLeft: [String]
@@ -417,21 +413,21 @@ final class ArtRepository {
         if let wh = ArtLoader.loadWhale() {
             whaleRightBody = wh.rightBody; whaleLeftBody = wh.leftBody
             whaleSpoutFrames = wh.spoutFrames
-            whaleWidth = wh.width; whaleHeight = wh.height
+            whaleWidth = wh.width
         } else {
             whaleRightBody = WhaleEntity.builtinRightArt; whaleLeftBody = WhaleEntity.builtinLeftArt
             whaleSpoutFrames = WhaleEntity.builtinSpoutFrames
-            whaleWidth = WhaleEntity.builtinWidth; whaleHeight = WhaleEntity.builtinHeight
+            whaleWidth = WhaleEntity.builtinWidth
         }
 
         // Monster
         if let m = ArtLoader.loadMonster() {
             monsterRightFrames = m.rightFrames; monsterLeftFrames = m.leftFrames
-            monsterWidth = m.width; monsterHeight = m.height
+            monsterWidth = m.width
         } else {
             monsterRightFrames = MonsterEntity.builtinRightFrames
             monsterLeftFrames  = MonsterEntity.builtinLeftFrames
-            monsterWidth = MonsterEntity.builtinWidth; monsterHeight = MonsterEntity.builtinHeight
+            monsterWidth = MonsterEntity.builtinWidth
         }
 
         // Ship

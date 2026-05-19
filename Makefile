@@ -35,6 +35,11 @@ $(SAVER): $(SOURCES) Sources/AsciiFishtank/Resources/Info.plist $(ART_FILES) LIC
 		-O \
 		-whole-module-optimization
 	cp Sources/AsciiFishtank/Resources/Info.plist $(SAVER)/Contents/Info.plist
+	if [ "$(VERSION)" != "dev" ]; then \
+		bundle_version="$(patsubst v%,%,$(VERSION))"; \
+		plutil -replace CFBundleShortVersionString -string "$$bundle_version" $(SAVER)/Contents/Info.plist; \
+		plutil -replace CFBundleVersion -string "$$bundle_version" $(SAVER)/Contents/Info.plist; \
+	fi
 	mkdir -p $(SAVER)/Contents/Resources/Art
 	rsync -a --delete --exclude '.DS_Store' --exclude '._*' \
 		Sources/AsciiFishtank/Resources/Art/ $(SAVER)/Contents/Resources/Art/

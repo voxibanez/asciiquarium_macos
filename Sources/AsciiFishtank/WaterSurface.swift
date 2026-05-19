@@ -10,8 +10,6 @@ class WaterSurface {
     let columns: Int
     var phase: Double = 0.0
 
-    // The water surface occupies rows 1-3 (row 0 is border)
-    static let surfaceHeight = 3
     // Row where water starts (below border)
     let startRow = 1
 

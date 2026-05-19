@@ -33,7 +33,6 @@ struct TreasureChest {
     // Glint characters that appear above when open
     static let glintChars: [Character] = ["*", "+", ".", "'"]
 
-    static let width  = 7
     static let height = 3
 
     static let chestColor = NSColor(calibratedRed: 0.6, green: 0.4, blue: 0.2, alpha: 1.0)

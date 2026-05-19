@@ -28,7 +28,6 @@ class AquariumScene {
     var crabs: [CrabEntity] = []
     var treasureChest: TreasureChest!
     var frameCount: Int = 0
-    var nextSchoolId: Int = 0
 
     // Real-time accumulators (seconds) for events that used to key off frameCount % (fps * interval).
     // Using elapsed time makes them FPS-independent.
@@ -77,8 +76,7 @@ class AquariumScene {
         }
 
         // Spawn an initial school
-        let school = FishEntity.spawnSchool(columns: columns, rows: rows, sandTop: sandTop, schoolId: nextSchoolId)
-        nextSchoolId += 1
+        let school = FishEntity.spawnSchool(columns: columns, sandTop: sandTop)
         fish.append(contentsOf: school)
 
         // Spawn seaweed
@@ -146,10 +144,10 @@ class AquariumScene {
 
                 // When it's time to move, jump by exactly the global stepSize.
                 // We pass a multiplier that cancels out the fish's internal speed.
-                fish[i].tick(columns: columns, rows: rows, sandTop: sandTop, 
+                fish[i].tick(columns: columns, sandTop: sandTop,
                             speedMultiplier: stepSize / fish[i].speed)
             } else {
-                fish[i].tick(columns: columns, rows: rows, sandTop: sandTop, speedMultiplier: stepSize)
+                fish[i].tick(columns: columns, sandTop: sandTop, speedMultiplier: stepSize)
             }
 
             // Fish bubble emission: emit at a rate of ~(1/fishBubbleChance) per second
@@ -219,7 +217,7 @@ class AquariumScene {
         // === Update jellyfish ===
         if config.jellyfishEnabled {
             for i in 0..<jellyfish.count {
-                jellyfish[i].tick(columns: columns, rows: rows)
+                jellyfish[i].tick(rows: rows)
             }
             jellyfish.removeAll { $0.isDead }
 
@@ -240,7 +238,7 @@ class AquariumScene {
             && sharkAccum >= Double(config.sharkSpawnInterval) {
             sharkAccum = 0
             if Int.random(in: 0..<3) == 0 {
-                sharks.append(SharkEntity.spawnRandom(columns: columns, rows: rows, sandTop: sandTop))
+                sharks.append(SharkEntity.spawnRandom(sandTop: sandTop))
             }
         }
 
@@ -248,7 +246,7 @@ class AquariumScene {
             && whaleAccum >= Double(config.whaleSpawnInterval) {
             whaleAccum = 0
             if Int.random(in: 0..<3) == 0 {
-                whales.append(WhaleEntity.spawnRandom(columns: columns, rows: rows, sandTop: sandTop))
+                whales.append(WhaleEntity.spawnRandom(columns: columns))
             }
         }
 
@@ -256,7 +254,7 @@ class AquariumScene {
             && monsterAccum >= Double(config.monsterSpawnInterval) {
             monsterAccum = 0
             if Int.random(in: 0..<4) == 0 {
-                monsters.append(MonsterEntity.spawnRandom(columns: columns, rows: rows, sandTop: sandTop))
+                monsters.append(MonsterEntity.spawnRandom(columns: columns))
             }
         }
 
@@ -271,9 +269,7 @@ class AquariumScene {
         if schoolAccum >= Double(config.schoolSpawnInterval) {
             schoolAccum = 0
             if Int.random(in: 0..<2) == 0 {
-                let school = FishEntity.spawnSchool(
-                    columns: columns, rows: rows, sandTop: sandTop, schoolId: nextSchoolId)
-                nextSchoolId += 1
+                let school = FishEntity.spawnSchool(columns: columns, sandTop: sandTop)
                 fish.append(contentsOf: school)
             }
         }
@@ -374,12 +370,12 @@ class AquariumScene {
     }
 
     private func spawnSeparatedFish() -> FishEntity {
-        var candidate = FishEntity.spawnRandom(columns: columns, rows: rows, sandTop: sandTop)
+        var candidate = FishEntity.spawnRandom(columns: columns, sandTop: sandTop)
         for _ in 0..<12 {
             guard fish.contains(where: { fishNearlyFullyOverlap(candidate, $0) }) else {
                 return candidate
             }
-            candidate = FishEntity.spawnRandom(columns: columns, rows: rows, sandTop: sandTop)
+            candidate = FishEntity.spawnRandom(columns: columns, sandTop: sandTop)
         }
         return candidate
     }

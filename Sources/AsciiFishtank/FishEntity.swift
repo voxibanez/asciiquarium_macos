@@ -222,16 +222,10 @@ struct FishEntity {
     var color: NSColor
     var partColors: [Character: NSColor] = [:]
     var frameCounter: Int = 0
-    var alive: Bool = true
-    var schoolId: Int = -1  // -1 = solo, >= 0 = belongs to a school
     /// Accumulates movement debt for staggered movement mode.
     var moveAccumulator: Double = 0
-    // Called by AquariumScene with configurable chance
-    func wantsBubble(chance: Int) -> Bool {
-        return Int.random(in: 0..<chance) == 0
-    }
 
-    mutating func tick(columns: Int, rows: Int, sandTop: Int, speedMultiplier: Double = 1.0) {
+    mutating func tick(columns: Int, sandTop: Int, speedMultiplier: Double = 1.0) {
         x += speed * direction.sign * speedMultiplier
         frameCounter += 1
 
@@ -251,10 +245,10 @@ struct FishEntity {
         let fishWidth = Double(design.width)
         if direction == .right && x > Double(columns) + 2 {
             x = -fishWidth - 1
-            randomizeDepth(columns: columns, sandTop: sandTop)
+            randomizeDepth(sandTop: sandTop)
         } else if direction == .left && x < -fishWidth - 2 {
             x = Double(columns) + 1
-            randomizeDepth(columns: columns, sandTop: sandTop)
+            randomizeDepth(sandTop: sandTop)
         }
     }
 
@@ -268,7 +262,7 @@ struct FishEntity {
         }
     }
 
-    private mutating func randomizeDepth(columns: Int, sandTop: Int) {
+    private mutating func randomizeDepth(sandTop: Int) {
         let minY = 5
         let maxY = max(minY, sandTop - design.height - 1)
         y = Int.random(in: minY...maxY)
@@ -294,7 +288,7 @@ struct FishEntity {
         }
     }
 
-    static func spawnRandom(columns: Int, rows: Int, sandTop: Int) -> FishEntity {
+    static func spawnRandom(columns: Int, sandTop: Int) -> FishEntity {
         let design = FishDesign.allDesigns.randomElement()!
         let direction: Direction = Bool.random() ? .left : .right
         let minY = 5
@@ -312,7 +306,7 @@ struct FishEntity {
     }
 
     // Create a school of small fish that swim together
-    static func spawnSchool(columns: Int, rows: Int, sandTop: Int, schoolId: Int) -> [FishEntity] {
+    static func spawnSchool(columns: Int, sandTop: Int) -> [FishEntity] {
         let smallDesigns = Array(FishDesign.allDesigns.prefix(4))
         let design = smallDesigns.randomElement()!
         let direction: Direction = Bool.random() ? .left : .right
@@ -340,7 +334,7 @@ struct FishEntity {
             let offsetY = (i / 3) * verticalSpacing
             let speedVariation = Double.random(in: -0.02...0.02)
 
-            var fish = FishEntity(
+            let fish = FishEntity(
                 x: baseX + offsetX,
                 y: baseY + offsetY,
                 speed: baseSpeed + speedVariation,
@@ -348,10 +342,8 @@ struct FishEntity {
                 design: design,
                 color: color,
                 partColors: partColors,
-                schoolId: schoolId,
                 moveAccumulator: sharedAccum
             )
-            fish.alive = true
             school.append(fish)
         }
 

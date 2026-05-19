@@ -18,7 +18,6 @@ struct MonsterEntity {
     static var rightFrames: [[String]] { ArtRepository.shared.monsterRightFrames }
     static var leftFrames:  [[String]] { ArtRepository.shared.monsterLeftFrames }
     static var width:       Int        { ArtRepository.shared.monsterWidth }
-    static var height:      Int        { ArtRepository.shared.monsterHeight }
 
     // Builtin fallbacks
     static let builtinRightFrames: [[String]] = [
@@ -50,7 +49,6 @@ struct MonsterEntity {
         ],
     ]
     static let builtinWidth  = 50
-    static let builtinHeight = 4
 
     mutating func tick(columns: Int, speedMultiplier: Double = 1.0) {
         x += speed * direction.sign * speedMultiplier
@@ -81,7 +79,7 @@ struct MonsterEntity {
 
     var y: Int  // vertical position
 
-    static func spawnRandom(columns: Int, rows: Int, sandTop: Int) -> MonsterEntity {
+    static func spawnRandom(columns: Int) -> MonsterEntity {
         let direction: Direction = Bool.random() ? .left : .right
         let x: Double = direction == .right ? Double(-MonsterEntity.width - 5) : Double(columns + 5)
         let speed = Double.random(in: 0.2...0.35)

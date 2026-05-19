@@ -2,4 +2,9 @@
 .build/
 dist/
 apple-signing-secrets/
+*.cer
+*.key
+*.p12
+*.pem
+notarization.zip
 *.saver/

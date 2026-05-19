@@ -20,7 +20,6 @@ struct WhaleEntity {
     static var leftArt:     [String]   { ArtRepository.shared.whaleLeftBody }
     static var spoutFrames: [[String]] { ArtRepository.shared.whaleSpoutFrames }
     static var width:       Int        { ArtRepository.shared.whaleWidth }
-    static var height:      Int        { ArtRepository.shared.whaleHeight }
 
     // Builtin fallbacks
     static let builtinRightArt: [String] = [
@@ -45,7 +44,6 @@ struct WhaleEntity {
         [" ;     ;"],
     ]
     static let builtinWidth  = 20
-    static let builtinHeight = 4
 
     static let spoutCycleLength = 60  // frames per spout cycle
 
@@ -93,7 +91,7 @@ struct WhaleEntity {
         }
     }
 
-    static func spawnRandom(columns: Int, rows: Int, sandTop: Int) -> WhaleEntity {
+    static func spawnRandom(columns: Int) -> WhaleEntity {
         let direction: Direction = Bool.random() ? .left : .right
         let x: Double = direction == .right ? Double(-WhaleEntity.width - 3) : Double(columns + 3)
         let speed = Double.random(in: 0.12...0.25)
