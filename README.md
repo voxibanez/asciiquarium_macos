@@ -22,15 +22,25 @@ xcode-select --install
 
 ## Install with Homebrew
 
-Because this repository is also the tap, use the explicit tap URL:
+Because this repository is also the tap, use the explicit tap URL.
+
+For the notarized release build, install the cask:
 
 ```sh
 brew tap voxibanez/asciiquarium_macos https://github.com/voxibanez/asciiquarium_macos.git
+brew install --cask ascii-fishtank
+```
+
+Then open System Settings > Screen Saver and select ASCII Fishtank.
+
+The source-build formula is also available:
+
+```sh
 brew install ascii-fishtank
 ```
 
-Homebrew installs the saver under its prefix. Link it into your user screen
-savers folder so macOS can find it:
+The formula installs the saver under Homebrew's prefix. Link it into your user
+screen savers folder so macOS can find it:
 
 ```sh
 mkdir -p "$HOME/Library/Screen Savers"
@@ -43,14 +53,13 @@ To upgrade later:
 
 ```sh
 brew update
-brew upgrade ascii-fishtank
+brew upgrade --cask ascii-fishtank
 ```
 
 To uninstall:
 
 ```sh
-rm -f "$HOME/Library/Screen Savers/AsciiFishtank.saver"
-brew uninstall ascii-fishtank
+brew uninstall --cask ascii-fishtank
 brew untap voxibanez/asciiquarium_macos
 ```
 
@@ -142,6 +151,23 @@ To reinstall from the tap source during development:
 ```sh
 brew update
 brew reinstall --build-from-source ascii-fishtank
+```
+
+## Homebrew cask maintenance
+
+The cask is stored in:
+
+```text
+Casks/ascii-fishtank.rb
+```
+
+It installs the notarized zip from the matching GitHub Release. Update the
+cask `version` when publishing a new release tag, then replace the checksum if
+using a pinned SHA:
+
+```sh
+shasum -a 256 AsciiFishtank-v1.0.8.zip
+brew style Casks/ascii-fishtank.rb
 ```
 
 ## GitHub releases
