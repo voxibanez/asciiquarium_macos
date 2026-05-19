@@ -162,12 +162,18 @@ submitted to Apple for notarization, stapled, verified, and then packaged.
 
 ### GitHub secrets for notarized releases
 
+The helper script walks through generating a fresh Developer ID certificate
+request and prints the required GitHub secrets:
+
+```sh
+scripts/setup-apple-signing-secrets.sh
+```
+
 Tagged release builds require these repository secrets:
 
 ```text
 APPLE_CERTIFICATE_BASE64
 APPLE_CERTIFICATE_PASSWORD
-APPLE_SIGNING_IDENTITY
 APPLE_ID
 APPLE_TEAM_ID
 APPLE_APP_PASSWORD
@@ -185,18 +191,6 @@ base64 -i DeveloperIDApplication.p12 | pbcopy
 ```
 
 `APPLE_CERTIFICATE_PASSWORD` is the password used when exporting that `.p12`.
-
-`APPLE_SIGNING_IDENTITY` is the full codesigning identity name, for example:
-
-```text
-Developer ID Application: Your Name (TEAMID)
-```
-
-You can find the exact identity on your Mac with:
-
-```sh
-security find-identity -v -p codesigning
-```
 
 `APPLE_ID` is your Apple ID email. `APPLE_TEAM_ID` is the 10-character Apple
 Developer Team ID. `APPLE_APP_PASSWORD` is an app-specific password generated

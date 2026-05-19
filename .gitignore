@@ -1,4 +1,5 @@
 .DS_Store
 .build/
 dist/
+apple-signing-secrets/
 *.saver/

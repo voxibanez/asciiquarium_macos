@@ -33,7 +33,6 @@ jobs:
         env:
           APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
@@ -43,7 +42,6 @@ jobs:
           for name in \
             APPLE_CERTIFICATE_BASE64 \
             APPLE_CERTIFICATE_PASSWORD \
-            APPLE_SIGNING_IDENTITY \
             APPLE_ID \
             APPLE_TEAM_ID \
             APPLE_APP_PASSWORD \
@@ -57,12 +55,18 @@ jobs:
 
       - name: Import Developer ID certificate
         if: startsWith(github.ref, 'refs/tags/')
+        id: signing
         env:
           APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          echo "$APPLE_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
+          printf '%s' "$APPLE_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
+          openssl pkcs12 \
+            -legacy \
+            -in certificate.p12 \
+            -noout \
+            -passin "pass:$APPLE_CERTIFICATE_PASSWORD"
 
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
@@ -75,17 +79,24 @@ jobs:
           security set-key-partition-list \
             -S apple-tool:,apple:,codesign: \
             -s -k "$KEYCHAIN_PASSWORD" build.keychain
-          security find-identity -v -p codesigning build.keychain
+          security find-identity -v -p codesigning build.keychain | tee identities.txt
+          identity="$(
+            awk -F '"' '/Developer ID Application/ { print $2; exit }' identities.txt
+          )"
+          if [[ -z "$identity" ]]; then
+            echo "::error::No Developer ID Application identity found after importing certificate"
+            exit 1
+          fi
+          echo "Using signing identity: $identity"
+          echo "identity=$identity" >> "$GITHUB_OUTPUT"
           rm -f certificate.p12
 
       - name: Build screen saver
-        env:
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
         run: |
           make clean
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             make \
-              CODESIGN_IDENTITY="$APPLE_SIGNING_IDENTITY" \
+              CODESIGN_IDENTITY="${{ steps.signing.outputs.identity }}" \
               CODESIGN_FLAGS="--timestamp --options runtime"
           else
             make
