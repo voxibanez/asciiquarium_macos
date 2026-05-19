@@ -188,13 +188,6 @@ submitted to Apple for notarization, stapled, verified, and then packaged.
 
 ### GitHub secrets for notarized releases
 
-The helper script walks through generating a fresh Developer ID certificate
-request and prints the required GitHub secrets:
-
-```sh
-scripts/setup-apple-signing-secrets.sh
-```
-
 Tagged release builds require these repository secrets:
 
 ```text
@@ -226,8 +219,8 @@ strong random value used only for the temporary CI keychain.
 To publish a release:
 
 ```sh
-git tag v1.0.0
-git push origin v1.0.0
+git tag vx.y.z
+git push origin vx.y.z
 ```
 
 ## License and attribution
