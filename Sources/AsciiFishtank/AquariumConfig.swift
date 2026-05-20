@@ -29,7 +29,7 @@ struct AquariumConfig: Codable {
 
     // --- Speed ---
     var speedMultiplier: Double = 1.0
-    var stepSize: Int = 1
+    var stepSize: Int = 2
     static let baseTickRate: Double = 15.0
 
     var tickInterval: Double { Double(stepSize) / (AquariumConfig.baseTickRate * speedMultiplier) }
@@ -52,7 +52,7 @@ struct AquariumConfig: Codable {
     var treasureChestEnabled: Bool = true
 
     // --- Movement ---
-    var staggeredMovement: Bool = false
+    var staggeredMovement: Bool = true
 
     // MARK: - Persistence
 
@@ -89,4 +89,3 @@ struct AquariumConfig: Codable {
         defaults.synchronize()
     }
 }
-
