@@ -1,5 +1,5 @@
 cask "ascii-fishtank" do
-  version "1.0.8"
+  version "1.0.9"
   sha256 :no_check
 
   url "https://github.com/voxibanez/asciiquarium_macos/releases/download/v#{version}/AsciiFishtank-v#{version}.zip",

@@ -182,7 +182,7 @@ cask `version` when publishing a new release tag, then replace the checksum if
 using a pinned SHA:
 
 ```sh
-shasum -a 256 AsciiFishtank-v1.0.8.zip
+shasum -a 256 AsciiFishtank-v1.0.9.zip
 brew style Casks/ascii-fishtank.rb
 ```
 
