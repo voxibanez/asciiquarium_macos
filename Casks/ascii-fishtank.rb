@@ -1,6 +1,6 @@
 cask "ascii-fishtank" do
-  version "1.1.0"
-  sha256 "51e3671561f17255f2dd9e9abe30cd2fb8e8951838090a8694dd48fba612a3f0"
+  version "1.1.1"
+  sha256 "5684f6f57edceaed62794f46d2b42bbe55ecce36dd68238f5c26b23e15da6c99"
 
   url "https://github.com/voxibanez/asciiquarium_macos/releases/download/v#{version}/AsciiFishtank-v#{version}.zip",
       verified: "github.com/voxibanez/asciiquarium_macos/"
