@@ -16,22 +16,26 @@ cask "ascii-fishtank" do
     system_command "/usr/bin/killall",
                    args:         ["legacyScreenSaver"],
                    sudo:         false,
-                   must_succeed: false
+                   must_succeed: false,
+                   print_stderr: false
     system_command "/usr/bin/killall",
                    args:         ["ScreenSaverEngine"],
                    sudo:         false,
-                   must_succeed: false
+                   must_succeed: false,
+                   print_stderr: false
   end
 
   uninstall_postflight do
     system_command "/usr/bin/killall",
                    args:         ["legacyScreenSaver"],
                    sudo:         false,
-                   must_succeed: false
+                   must_succeed: false,
+                   print_stderr: false
     system_command "/usr/bin/killall",
                    args:         ["ScreenSaverEngine"],
                    sudo:         false,
-                   must_succeed: false
+                   must_succeed: false,
+                   print_stderr: false
   end
 
   caveats do
