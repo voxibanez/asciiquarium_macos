@@ -5,14 +5,17 @@
 
 import SwiftUI
 import Observation
+import Foundation
 
 @MainActor
 @Observable
 class SettingsViewModel {
     var config: AquariumConfig
+    let releaseTag: String
 
     init() {
         self.config = AquariumConfig.load()
+        self.releaseTag = SettingsViewModel.bundleReleaseTag()
     }
 
     func save() {
@@ -22,6 +25,19 @@ class SettingsViewModel {
     func reset() {
         AquariumConfig.resetToDefaults()
         config = AquariumConfig()
+    }
+
+    private static func bundleReleaseTag() -> String {
+        let bundle = Bundle(for: AsciiFishtankView.self)
+        if let tag = bundle.object(forInfoDictionaryKey: "AsciiFishtankReleaseTag") as? String,
+           !tag.isEmpty, tag != "dev" {
+            return tag
+        }
+        if let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
+           !version.isEmpty {
+            return "v\(version)"
+        }
+        return "dev"
     }
 }
 
@@ -147,6 +163,9 @@ struct AquariumSettingsView: View {
         VStack(spacing: 4) {
             Text("><((('>  ASCII Fishtank  <')))><")
                 .font(.headline)
+            Text("Version \(viewModel.releaseTag)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
             Text("Settings are applied on next screensaver launch.")
                 .font(.caption)
                 .foregroundStyle(.secondary)

@@ -18,6 +18,8 @@
     <string>1.0</string>
     <key>CFBundleVersion</key>
     <string>2</string>
+    <key>AsciiFishtankReleaseTag</key>
+    <string>dev</string>
     <key>NSPrincipalClass</key>
     <string>AsciiFishtankView</string>
     <key>SSEHasConfigureSheet</key>

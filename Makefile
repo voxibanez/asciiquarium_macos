@@ -39,6 +39,7 @@ $(SAVER): $(SOURCES) Sources/AsciiFishtank/Resources/Info.plist $(ART_FILES) LIC
 		bundle_version="$(patsubst v%,%,$(VERSION))"; \
 		plutil -replace CFBundleShortVersionString -string "$$bundle_version" $(SAVER)/Contents/Info.plist; \
 		plutil -replace CFBundleVersion -string "$$bundle_version" $(SAVER)/Contents/Info.plist; \
+		plutil -replace AsciiFishtankReleaseTag -string "$(VERSION)" $(SAVER)/Contents/Info.plist; \
 	fi
 	mkdir -p $(SAVER)/Contents/Resources/Art
 	rsync -a --delete --exclude '.DS_Store' --exclude '._*' \
